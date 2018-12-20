@@ -34,10 +34,10 @@ defmodule Aoc2018.Day13b do
 
   defp move_train(train, grid) do
     train = case train.dir do
-      :left  -> %{train | row: train.row, col: train.col - 1}
-      :right -> %{train | row: train.row, col: train.col + 1}
-      :up    -> %{train | row: train.row - 1, col: train.col}
-      :down  -> %{train | row: train.row + 1, col: train.col}
+      :left  -> %{train | col: train.col - 1}
+      :right -> %{train | col: train.col + 1}
+      :up    -> %{train | row: train.row - 1}
+      :down  -> %{train | row: train.row + 1}
     end
 
     grid
