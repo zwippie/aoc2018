@@ -1,33 +1,52 @@
-defmodule Aoc2018.Day5 do
-  @regex ~r/Aa|aA|Bb|bB|Cc|cC|Dd|dD|Ee|eE|Ff|fF|Gg|gG|Hh|hH|Ii|iI|Jj|jJ|Kk|kK|Ll|lL|Mm|mM|Nn|nN|Oo|oO|Pp|pP|Qq|qQ|Rr|rR|Ss|sS|Tt|tT|Uu|uU|Vv|vV|Ww|wW|Xx|xX|Yy|yY|Zz|zZ/
-
+defmodule Aoc2018.Day5a do
   def solve do
     read_input()
-    |> remove_next_pair()
-    |> String.length
+    |> to_charlist
+    |> remove_next_pair([])
+    |> length
   end
 
-  defp remove_next_pair(input) do
-    case Regex.run(@regex, input, return: :index) do
-      [{0, 2}] ->
-        String.slice(input, 2..-1)
-        |> remove_next_pair
-
-      [{idx, 2}] ->
-        String.slice(input, 0..(idx - 1)) <> String.slice(input, (idx + 2)..-1)
-        |> remove_next_pair
-
-      _ ->
-        input
+  defp remove_next_pair(input, acc) when length(input) < 2, do: input ++ acc
+  defp remove_next_pair([a, b | rest], acc) do
+    if abs(a - b) == 32 do
+      {f, acc} = Enum.split(acc, 1)
+      remove_next_pair(f ++ rest, acc)
+    else
+      remove_next_pair([b | rest], [a | acc])
     end
   end
 
-  defp build_regex do
-    for caps <- ?A..?Z do
-      small = caps + 32
-      [caps, small, ?|, small, caps]
+  defp read_input do
+    File.read!("priv/fixtures/day5.txt")
+    |> String.split(~r/\n/, trim: true)
+    |> hd
+  end
+end
+
+defmodule Aoc2018.Day5b do
+  def solve do
+    input = read_input() |> to_charlist
+    ?A..?Z
+    |> Stream.map(&(remove_chars(input, &1)))
+    |> Stream.map(&remove_next_pair/1)
+    |> Enum.min_by(&length/1)
+    |> length
+  end
+
+  defp remove_chars(input, char) do
+    IO.inspect("remove #{char}")
+    Enum.reject(input, fn c -> char == c || char + 32 == c end)
+  end
+
+  defp remove_next_pair(input, acc \\ [])
+  defp remove_next_pair(input, acc) when length(input) < 2, do: input ++ acc
+  defp remove_next_pair([a, b | rest], acc) do
+    if abs(a - b) == 32 do
+      {f, acc} = Enum.split(acc, 1)
+      remove_next_pair(f ++ rest, acc)
+    else
+      remove_next_pair([b | rest], [a | acc])
     end
-    |> Enum.join("|")
   end
 
   defp read_input do
