@@ -1,0 +1,56 @@
+[a, b, number, c, ip, d]
+
+goto buildnumber         # addi 4 16 4
+init:
+  b = 1                  # seti 1 8 1
+
+init2:
+  d = 1                  # seti 1 3 5
+
+loop:
+  c = b * d              # mulr 1 5 3
+  if c == number         # eqrr 3 2 3
+                         # addr 3 4 4
+                         # addi 4 1 4
+     a += b              # addr 1 0 0
+  end
+
+  d += 1                 # addi 5 1 5
+  if d > number          # gtrr 5 2 3
+                         # addr 4 3 4
+    b += 1               # addi 1 1 1
+    if b > number        # gtrr 1 2 3
+                         # addr 3 4 4
+      goto end           # mulr 4 4 4
+    else
+      goto init2         # seti 1 4 4
+  else
+    goto loop            # seti 2 2 4
+  end
+
+buildnumber:
+  number += 2          # addi 2 2 2
+  number *= 2          # mulr 2 2 2
+  number = number * ip # mulr 4 2 2 (ip = 19)
+  number *= 11         # muli 2 11 2
+
+  c += 6               # addi 3 6 3
+  c *= ip              # mulr 3 4 3 (ip = 22)
+  c += 8               # addi 3 8 3
+  number += c          # addr 2 3 2
+  if a == 1            # addr 4 0 4
+    c = ip             # setr 4 4 3 (ip=27)
+    c *= ip            # mulr 3 4 3
+    c += ip            # addr 4 3 3
+    c *= ip            # mulr 4 3 3
+    c *= 14            # muli 3 14 3
+    c *= ip            # mulr 3 4 3
+    number += c        # addr 2 3 2
+    a = 0              # seti 0 4 0
+    goto init          # seti 0 7 4
+  else
+    goto init          # seti 0 1 4
+  end
+
+end:
+  halt
