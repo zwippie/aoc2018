@@ -8,12 +8,7 @@ defmodule Aoc2018.Day18 do
     type_count(map, :tree) * type_count(map, :lumber)
   end
 
-  # not 183040 too low?
-  # not 195160 too high
-  # not 194449 too high
-  # not 180942
-  # not 189912
-  # try 183787
+  # 183787
   def solve_b do
     {map, generation, history} =
       read_input()
