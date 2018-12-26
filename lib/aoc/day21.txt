@@ -1,0 +1,41 @@
+a b c d ip e
+
+  d = 123                 # 0: seti 123 0 3
+label_0:
+  d = d &&& 456           # 1: bani 3 456 3
+  if d != 72              # 2: eqri 3 72 3
+                          # 3: addr 3 4 4
+    goto label_0          # 4: seti 0 0 4
+  d = 0                   # 5: seti 0 2 3
+label_5:
+  c = c ||| 65536         # 6: bori 3 65536 2
+  d = 1397714             # 7: seti 1397714 1 3
+label_7
+  e = c &&& 255           # 8: bani 2 255 5
+  d = d + e               # 9: addr 3 5 3
+  d = d &&& 16777215      # 10: bani 3 16777215 3
+  d *= 65899              # 11: muli 3 65899 3
+  d = d &&& 16777215      # 12: bani 3 16777215 3
+  if 256 > c              # 13: gtir 256 2 5
+                          # 14: addr 5 4 4
+                          # 15: addi 4 1 4
+    goto label_27         # 16: seti 27 6 4
+
+  e = 0                   # 17: seti 0 6 5
+label_17:
+  b = e + 1               # 18: addi 5 1 1
+  b *= 256                # 19: muli 1 256 1
+
+  if b <= c               # 20: gtrr 1 2 1
+                          # 21: addr 1 4 4
+                          # 22: addi 4 1 4
+    goto label_25         # 23: seti 25 2 4
+  e += 1                  # 24: addi 5 1 5
+  goto label_17           # 25: seti 17 0 4
+label_25:
+  c = e                   # 26: setr 5 7 2
+  goto label_7            # 27: seti 7 4 4
+label_27:
+  if d != a               # 28: eqrr 3 0 5
+                          # 29: addr 5 4 4
+    goto label_5          # 30: seti 5 8 4
