@@ -109,25 +109,40 @@ defmodule Aoc2018.Day22b do
     {max_x, max_y} = @target_pos
     cell_types = Aoc2018.Day22.types({max_x + @extra, max_y + @extra})
 
-    find_shortest_route(cell_types, {0, 0}, tool, 0, [])
+    find_shortest_route(cell_types, {0, 0}, :torch, 0, [], [])
   end
 
-  defp find_shortest_route(cell_types, {x, y} = from, tool, duration, acc) do
+  defp find_shortest_route(cell_types, {x, y} = from, tool, duration, path, acc) do
+    to_coords(from, path)
+    |> Enum.map(fn {to_x, to_y} ->
+
+    end)
     to = {x - 1, y}
     {tool, cost} = prepare_for(cell_types, tool, from, to)
-    find_shortest_route(cell_types, to, duration + cost() )
+    find_shortest_route(cell_types, to, tool, duration + cost(cell_types, tool, to), [to | path], acc)
   end
 
   defp prepare_for(cell_types, tool, from, to) do
-    can_move_to?(Map.get(cell_types, from), Map.get(cell_types, to))
+    # can_move_to?(Map.get(cell_types, from), Map.get(cell_types, to))
   end
 
   defp distance({from_x, from_y}, {to_x, to_y}) do
     abs(to_x - from_x) + abs(to_y - from_y)
   end
 
-  defp to_coords(from) do
-
+  defp to_coords(from, path) do
+    to_coords(from)
+    |> Enum.filter(fn coord -> coord not in path end)
+  end
+  defp to_coords({x, 0}), do: [{x, 1}, {x + 1, 0}]
+  defp to_coords({0, y}), do: [{1, y}, {0, y + 1}]
+  defp to_coords({x, y}) do
+    [
+      {x - 1, y},
+      {x + 1, y},
+      {x, y - 1},
+      {x, y + 1}
+    ]
   end
 
   defp tools_for(cell_type) do
@@ -140,12 +155,6 @@ defmodule Aoc2018.Day22b do
 
   defp change_needed?(tool, to_type) do
     tool not in tools_for(to_type)
-  end
-
-  defp can_move_to?(from_type, to_type) do
-    tools_from = tools_for(from_type) |> MapSet.new()
-    tools_to   = tools_for(to_type)   |> MapSet.new()
-    MapSet.union(tools_from, tools_to) |> Enum.any?
   end
 
   # when adjacent, what is the cost/duration to move?
