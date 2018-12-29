@@ -9,8 +9,41 @@ defmodule Aoc2018.Day24 do
     |> Enum.reduce(0, fn group, acc -> acc + group.no_units end)
   end
 
+  def solve_b do
+    groups = read_input()
+    25..5000
+    |> Enum.reduce_while(0, fn boost, acc ->
+      groups_left =
+        groups
+        |> give_boost(boost)
+        |> fight
+
+      # print_armies(groups_left)
+      # Enum.each(groups_left, &IO.inspect/1)
+
+      infection_count = Enum.count(groups_left, fn group -> group.army == :infection end)
+      immune_system_count = Enum.count(groups_left, fn group -> group.army == :immune_system end)
+
+      case {infection_count, immune_system_count} do
+        {0, _} ->
+          IO.puts "immune_system wins with boost of #{boost}"
+          unit_count = Enum.reduce(groups_left, 0, fn group, acc2 -> acc2 + group.no_units end)
+          {:halt, unit_count}
+
+        {_, 0} ->
+          IO.puts "immune_system was slaughtered with boost of #{boost}"
+          {:cont, acc}
+
+        {_, _} ->
+          IO.puts "stalemate with boost of #{boost}"
+          {:cont, acc}
+      end
+    end)
+  end
+
   defp fight(groups) do
     # IO.gets print_armies(groups)
+    # print_armies(groups)
     groups = sort_for_attack(groups)
 
     attacks =
@@ -23,17 +56,24 @@ defmodule Aoc2018.Day24 do
         groups
 
       true ->
-        attack(groups, attacks)
+        {groups, death_count} = attack(groups, attacks)
+        if death_count == 0 do
+          IO.puts "No one is dying from these attacks"
+          groups
+        else
+          groups
+          |> Enum.reject(fn group -> group.no_units == 0 end)
+          |> fight
+        end
     end
   end
 
   defp attack(groups, attacks) do
-    groups
-    |> Enum.reduce(groups, fn attacker, acc ->
+    Enum.reduce(groups, {groups, 0}, fn attacker, {acc, death_count} ->
       attacker = Enum.find(acc, fn group -> group.initiative == attacker.initiative end)
       case Enum.find(attacks, fn {_ti, ai} -> attacker.initiative == ai end) do
         nil ->
-          acc
+          {acc, death_count}
 
         {target_initiative, _} ->
           target_idx = Enum.find_index(acc, fn group -> group.initiative == target_initiative end)
@@ -42,11 +82,9 @@ defmodule Aoc2018.Day24 do
           units_lost = Enum.min([target.no_units, div(damage, target.hit_points)])
           # IO.puts "#{attacker.army} #{attacker.group} attacks #{target.group} with #{attacker.no_units} units doing #{damage} damage, killing #{units_lost} units"
           no_units = target.no_units - units_lost
-          List.replace_at(acc, target_idx, %{target | no_units: no_units})
+          {List.replace_at(acc, target_idx, %{target | no_units: no_units}), death_count + units_lost}
       end
     end)
-    |> Enum.reject(fn group -> group.no_units == 0 end)
-    |> fight
   end
 
   defp find_target(groups, current_group, acc) do
@@ -64,6 +102,7 @@ defmodule Aoc2018.Day24 do
         {target, _, _} = hd(targets)
          Map.put(acc, target.initiative, current_group.initiative)
     end
+    # |> IO.inspect
   end
 
   defp sort_for_target_selection(groups) do
@@ -88,6 +127,15 @@ defmodule Aoc2018.Day24 do
       from.damage_type in to.weaknesses -> 2 * effective_power(from)
       true -> effective_power(from)
     end
+  end
+
+  defp give_boost(groups, boost) do
+    Enum.map(groups, fn group ->
+      case group.army do
+        :infection -> group
+        :immune_system -> %{group | damage: group.damage + boost}
+      end
+    end)
   end
 
   defp print_armies(groups) do
@@ -155,5 +203,11 @@ defmodule Aoc2018.Day24 do
       [] -> []
       [result] -> Enum.map(result, &String.to_atom/1)
     end
+  end
+end
+
+defmodule Aoc2018.Day24b do
+  def solve do
+    Aoc2018.Day24.solve_b
   end
 end
