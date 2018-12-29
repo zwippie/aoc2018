@@ -13,40 +13,18 @@ defmodule Aoc2018.Day23 do
     end)
   end
 
-  # 76468059 too low
   def solve_b do
     input = read_input()
-    # {{min_x, max_x}, {min_y, max_y}, {min_z, max_z}} = dimensions(input)
-    # for x <- min_x..max_x, y <- min_y..max_y, z <- min_z..max_z do
-    #   nodes_in_range(input, [x, y, z])
-    # end
-    {[x, y, z, r], count} =
+    {[x, y, z, _r], _count} =
       input
       |> Enum.map(fn pos -> {pos, nodes_in_range(input, pos)} end)
       |> Enum.max_by(fn {_, d} -> d end)
     distance({0, 0, 0}, {x, y, z})
   end
 
-  defp dimensions(input) do
-    {[min_x, _, _, _], [max_x, _, _, _]} = Enum.min_max_by(input, fn [x, _, _, _] -> x end)
-    {[_, min_y, _, _], [_, max_y, _, _]} = Enum.min_max_by(input, fn [_, y, _, _] -> y end)
-    {[_, _, min_z, _], [_, _, max_z, _]} = Enum.min_max_by(input, fn [_, _, z, _] -> z end)
-    {{min_x, max_x}, {min_y, max_y}, {min_z, max_z}}
-  end
-
   defp nodes_in_range(input, [x, y, z, r]) do
     Enum.reduce(input, 0, fn [x2, y2, z2, _], acc ->
       if distance({x, y, z}, {x2, y2, z2}) > r do
-        acc
-      else
-        acc + 1
-      end
-    end)
-  end
-
-  defp nodes_in_range(input, [x, y, z]) do
-    Enum.reduce(input, 0, fn [x2, y2, z2, r2], acc ->
-      if distance({x, y, z}, {x2, y2, z2}) > r2 do
         acc
       else
         acc + 1
